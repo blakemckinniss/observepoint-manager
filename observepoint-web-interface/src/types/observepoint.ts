@@ -12,16 +12,17 @@ export interface WebJourney {
 }
 
 export interface WebJourneyAction {
-  id: string;
-  journeyId: string;
-  type: 'click' | 'navigate' | 'input' | 'wait' | 'scroll' | 'javascript';
-  order: number;
+  actionId: number;
+  label: string;
+  sequence: number;
+  action: 'navto' | 'execute' | 'click' | 'input' | 'wait' | 'scroll';
+  url?: string;
+  js?: string;
   selector?: string;
   value?: string;
-  url?: string;
-  description?: string;
-  waitTime?: number;
-  script?: string;
+  waitDuration?: number;
+  preventNavigation?: boolean;
+  rules: number[];
 }
 
 export interface WebJourneyRun {

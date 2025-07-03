@@ -78,32 +78,33 @@ export function WebJourneyDetail() {
   };
 
   const getActionDescription = (action: WebJourneyAction): string => {
-    if (action.description) return action.description;
+    // Use the label if available
+    if (action.label) return action.label;
     
-    switch (action.type) {
+    switch (action.action) {
+      case 'navto':
+        return action.url ? `Navigate to: ${action.url}` : 'Navigate action';
+      case 'execute':
+        return 'Execute JavaScript code';
       case 'click':
         return action.selector ? `Click on: ${action.selector}` : 'Click action';
-      case 'navigate':
-        return action.url ? `Navigate to: ${action.url}` : 'Navigate action';
       case 'input':
         return action.selector ? `Input text in: ${action.selector}` : 'Input action';
       case 'wait':
-        return action.waitTime ? `Wait for ${action.waitTime}ms` : 'Wait action';
+        return action.waitDuration ? `Wait for ${action.waitDuration} seconds` : 'Wait action';
       case 'scroll':
         return action.selector ? `Scroll to: ${action.selector}` : 'Scroll action';
-      case 'javascript':
-        return 'Execute JavaScript code';
       default:
         return 'Unknown action';
     }
   };
 
-  const getActionIcon = (type: WebJourneyAction['type']) => {
+  const getActionIcon = (actionType: WebJourneyAction['action']) => {
     const iconClass = "w-4 h-4";
-    switch (type) {
+    switch (actionType) {
       case 'click':
         return <MousePointer className={iconClass} />;
-      case 'navigate':
+      case 'navto':
         return <Navigation className={iconClass} />;
       case 'input':
         return <Type className={iconClass} />;
@@ -111,7 +112,7 @@ export function WebJourneyDetail() {
         return <Clock className={iconClass} />;
       case 'scroll':
         return <Scroll className={iconClass} />;
-      case 'javascript':
+      case 'execute':
         return <Code className={iconClass} />;
       default:
         return null;
@@ -309,24 +310,41 @@ export function WebJourneyDetail() {
           )}
           
           <ul className="divide-y divide-gray-200">
-            {actions?.map((action, index) => (
-              <li key={action.id} className="px-4 py-4 sm:px-6">
+            {actions?.map((action) => (
+              <li key={action.actionId} className="px-4 py-4 sm:px-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
-                      {getActionIcon(action.type)}
+                      {getActionIcon(action.action)}
                     </div>
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-900">
-                        Step {index + 1}: {action.type}
+                        Step {action.sequence + 1}: {getActionDescription(action)}
                       </p>
-                      <p className="text-sm text-gray-500">
-                        {getActionDescription(action)}
-                      </p>
-                      {action.type === 'javascript' && action.script && (
-                        <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-x-auto">
-                          <code>{action.script}</code>
-                        </pre>
+                      {action.url && (
+                        <p className="text-sm text-gray-500 mt-1">
+                          URL: {action.url}
+                        </p>
+                      )}
+                      {action.waitDuration && (
+                        <p className="text-sm text-gray-500 mt-1">
+                          Wait: {action.waitDuration} second{action.waitDuration !== 1 ? 's' : ''}
+                        </p>
+                      )}
+                      {action.action === 'execute' && action.js && (
+                        <details className="mt-2">
+                          <summary className="text-xs text-gray-600 cursor-pointer hover:text-gray-800">
+                            View JavaScript code
+                          </summary>
+                          <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-x-auto max-h-60 overflow-y-auto">
+                            <code>{action.js}</code>
+                          </pre>
+                        </details>
+                      )}
+                      {action.rules && action.rules.length > 0 && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          Rules: {action.rules.join(', ')}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -341,7 +359,7 @@ export function WebJourneyDetail() {
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button 
-                      onClick={() => handleDeleteAction(action.id)}
+                      onClick={() => handleDeleteAction(action.actionId.toString())}
                       className="text-red-600 hover:text-red-900"
                     >
                       <Trash2 className="w-4 h-4" />
