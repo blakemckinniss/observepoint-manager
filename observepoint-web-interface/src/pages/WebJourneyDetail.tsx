@@ -77,6 +77,27 @@ export function WebJourneyDetail() {
     }
   };
 
+  const getActionDescription = (action: WebJourneyAction): string => {
+    if (action.description) return action.description;
+    
+    switch (action.type) {
+      case 'click':
+        return action.selector ? `Click on: ${action.selector}` : 'Click action';
+      case 'navigate':
+        return action.url ? `Navigate to: ${action.url}` : 'Navigate action';
+      case 'input':
+        return action.selector ? `Input text in: ${action.selector}` : 'Input action';
+      case 'wait':
+        return action.waitTime ? `Wait for ${action.waitTime}ms` : 'Wait action';
+      case 'scroll':
+        return action.selector ? `Scroll to: ${action.selector}` : 'Scroll action';
+      case 'javascript':
+        return 'Execute JavaScript code';
+      default:
+        return 'Unknown action';
+    }
+  };
+
   const getActionIcon = (type: WebJourneyAction['type']) => {
     const iconClass = "w-4 h-4";
     switch (type) {
@@ -300,11 +321,13 @@ export function WebJourneyDetail() {
                         Step {index + 1}: {action.type}
                       </p>
                       <p className="text-sm text-gray-500">
-                        {action.description || 
-                         (action.selector && `Selector: ${action.selector}`) ||
-                         (action.url && `URL: ${action.url}`) ||
-                         (action.waitTime && `Wait: ${action.waitTime}ms`)}
+                        {getActionDescription(action)}
                       </p>
+                      {action.type === 'javascript' && action.script && (
+                        <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-x-auto">
+                          <code>{action.script}</code>
+                        </pre>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
