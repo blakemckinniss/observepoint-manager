@@ -8,6 +8,8 @@ import { CreateJourneyModal } from '../components/CreateJourneyModal';
 
 export function WebJourneyList() {
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [nameFilter, setNameFilter] = useState('APP');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const { data: journeys, isLoading, error } = useWebJourneys();
   const runJourney = useRunWebJourney();
   const deleteJourney = useDeleteWebJourney();
@@ -63,8 +65,20 @@ export function WebJourneyList() {
     );
   }
 
-  // Show all journeys
-  const filteredJourneys = journeys || [];
+  // Apply filters to journeys
+  const filteredJourneys = (journeys || []).filter(journey => {
+    // Filter by name
+    if (nameFilter && !journey.name.startsWith(nameFilter)) {
+      return false;
+    }
+    
+    // Filter by status
+    if (statusFilter !== 'all' && journey.status !== statusFilter) {
+      return false;
+    }
+    
+    return true;
+  });
 
   return (
     <ApiKeyGuard>
@@ -73,7 +87,7 @@ export function WebJourneyList() {
         <div className="sm:flex-auto">
           <h1 className="text-2xl font-semibold text-gray-900">Web Journeys</h1>
           <p className="mt-2 text-sm text-gray-700">
-            Manage and monitor your web journeys.
+            Manage and monitor your web journeys. By default, showing journeys with names starting with "APP".
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
@@ -88,7 +102,59 @@ export function WebJourneyList() {
         </div>
       </div>
 
-      <div className="mt-8 flex flex-col">
+      {/* Filter Section */}
+      <div className="mt-6 bg-gray-50 p-4 rounded-lg">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div>
+            <label htmlFor="name-filter" className="block text-sm font-medium text-gray-700">
+              Filter by Name Prefix
+            </label>
+            <input
+              type="text"
+              id="name-filter"
+              value={nameFilter}
+              onChange={(e) => setNameFilter(e.target.value)}
+              placeholder="e.g., APP"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="status-filter" className="block text-sm font-medium text-gray-700">
+              Filter by Status
+            </label>
+            <select
+              id="status-filter"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border"
+            >
+              <option value="all">All</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+          
+          <div className="flex items-end">
+            <button
+              type="button"
+              onClick={() => {
+                setNameFilter('');
+                setStatusFilter('all');
+              }}
+              className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Clear Filters
+            </button>
+          </div>
+        </div>
+        
+        <div className="mt-2 text-sm text-gray-600">
+          Showing {filteredJourneys.length} of {journeys?.length || 0} journeys
+        </div>
+      </div>
+
+      <div className="mt-6 flex flex-col">
         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
             <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
@@ -116,7 +182,9 @@ export function WebJourneyList() {
                   {filteredJourneys.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="px-3 py-4 text-sm text-gray-500 text-center">
-                        No journeys found. Click "New Journey" to create your first journey.
+                        {nameFilter || statusFilter !== 'all' 
+                          ? 'No journeys match the current filters. Try adjusting your filters or create a new journey.'
+                          : 'No journeys found. Click "New Journey" to create your first journey.'}
                       </td>
                     </tr>
                   ) : (
