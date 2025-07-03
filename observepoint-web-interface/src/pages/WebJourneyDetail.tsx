@@ -60,7 +60,7 @@ export function WebJourneyDetail() {
         journeyId,
         action: {
           ...newAction,
-          order: (actions?.length || 0) + 1,
+          sequence: (actions?.length || 0),
         },
       });
       setIsAddingAction(false);
@@ -290,16 +290,6 @@ export function WebJourneyDetail() {
                   </div>
                 )}
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Description</label>
-                  <input
-                    type="text"
-                    value={newAction.description || ''}
-                    onChange={(e) => setNewAction({ ...newAction, description: e.target.value })}
-                    className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                    placeholder="Optional description"
-                  />
-                </div>
                 
                 <div className="flex gap-2">
                   <button
