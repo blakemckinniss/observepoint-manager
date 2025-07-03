@@ -37,8 +37,10 @@ export function WebJourneyDetail() {
 
   const [isAddingAction, setIsAddingAction] = useState(false);
   const [newAction, setNewAction] = useState<Partial<WebJourneyAction>>({
-    type: 'click',
-    order: 1,
+    action: 'click',
+    sequence: 0,
+    label: '',
+    rules: [],
   });
 
   const handleRunJourney = async () => {
@@ -62,7 +64,7 @@ export function WebJourneyDetail() {
         },
       });
       setIsAddingAction(false);
-      setNewAction({ type: 'click', order: 1 });
+      setNewAction({ action: 'click', sequence: 0, label: '', rules: [] });
     } catch (error) {
       alert('Failed to add action: ' + error);
     }
@@ -198,22 +200,33 @@ export function WebJourneyDetail() {
             <div className="bg-gray-50 px-4 py-4 sm:px-6">
               <div className="space-y-4">
                 <div>
+                  <label className="block text-sm font-medium text-gray-700">Label</label>
+                  <input
+                    type="text"
+                    value={newAction.label || ''}
+                    onChange={(e) => setNewAction({ ...newAction, label: e.target.value })}
+                    className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                    placeholder="Step description"
+                  />
+                </div>
+                
+                <div>
                   <label className="block text-sm font-medium text-gray-700">Action Type</label>
                   <select
-                    value={newAction.type}
-                    onChange={(e) => setNewAction({ ...newAction, type: e.target.value as WebJourneyAction['type'] })}
+                    value={newAction.action}
+                    onChange={(e) => setNewAction({ ...newAction, action: e.target.value as WebJourneyAction['action'] })}
                     className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                   >
                     <option value="click">Click</option>
-                    <option value="navigate">Navigate</option>
+                    <option value="navto">Navigate</option>
                     <option value="input">Input</option>
                     <option value="wait">Wait</option>
                     <option value="scroll">Scroll</option>
-                    <option value="javascript">JavaScript</option>
+                    <option value="execute">Execute JavaScript</option>
                   </select>
                 </div>
                 
-                {newAction.type === 'click' && (
+                {newAction.action === 'click' && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Selector</label>
                     <input
@@ -226,7 +239,7 @@ export function WebJourneyDetail() {
                   </div>
                 )}
                 
-                {newAction.type === 'navigate' && (
+                {newAction.action === 'navto' && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700">URL</label>
                     <input
@@ -239,7 +252,7 @@ export function WebJourneyDetail() {
                   </div>
                 )}
                 
-                {newAction.type === 'input' && (
+                {newAction.action === 'input' && (
                   <>
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Selector</label>
@@ -264,15 +277,15 @@ export function WebJourneyDetail() {
                   </>
                 )}
                 
-                {newAction.type === 'wait' && (
+                {newAction.action === 'wait' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Wait Time (ms)</label>
+                    <label className="block text-sm font-medium text-gray-700">Wait Time (seconds)</label>
                     <input
                       type="number"
-                      value={newAction.waitTime || ''}
-                      onChange={(e) => setNewAction({ ...newAction, waitTime: parseInt(e.target.value) })}
+                      value={newAction.waitDuration || ''}
+                      onChange={(e) => setNewAction({ ...newAction, waitDuration: parseInt(e.target.value) })}
                       className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                      placeholder="1000"
+                      placeholder="1"
                     />
                   </div>
                 )}
@@ -298,7 +311,7 @@ export function WebJourneyDetail() {
                   <button
                     onClick={() => {
                       setIsAddingAction(false);
-                      setNewAction({ type: 'click', order: 1 });
+                      setNewAction({ action: 'click', sequence: 0, label: '', rules: [] });
                     }}
                     className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                   >
