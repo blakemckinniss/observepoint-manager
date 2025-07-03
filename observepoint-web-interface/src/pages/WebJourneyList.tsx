@@ -17,6 +17,16 @@ export function WebJourneyList() {
     }
   };
 
+  const handleNewJourney = () => {
+    // For now, show an alert that this feature is not yet implemented
+    alert('Creating new journeys through the UI is not yet implemented. Please use the ObservePoint web interface to create new journeys.');
+  };
+
+  const handleDeleteJourney = (journeyId: string, journeyName: string) => {
+    // For now, show an alert that this feature is not yet implemented
+    alert(`Deleting journeys through the UI is not yet implemented. Please use the ObservePoint web interface to delete journey "${journeyName}".`);
+  };
+
 
   const getStatusBadge = (status: WebJourney['status']) => {
     const baseClasses = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full";
@@ -63,6 +73,7 @@ export function WebJourneyList() {
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <button
             type="button"
+            onClick={handleNewJourney}
             className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -141,6 +152,7 @@ export function WebJourneyList() {
                               <Edit2 className="w-5 h-5" />
                             </Link>
                             <button
+                              onClick={() => handleDeleteJourney(journey.id, journey.name)}
                               className="text-red-600 hover:text-red-900"
                               title="Delete Journey"
                             >
