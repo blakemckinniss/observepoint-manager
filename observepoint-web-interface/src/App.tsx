@@ -86,9 +86,11 @@ function Navigation() {
 }
 
 function App() {
+  const basename = import.meta.env.PROD ? '/observepoint-manager' : '';
+  
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
+      <Router basename={basename}>
         <div className="min-h-screen bg-gray-50">
           <Navigation />
           
