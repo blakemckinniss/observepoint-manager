@@ -5,4 +5,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: '/observepoint-manager/',
+  server: {
+    // Serve the app at /observepoint-manager/ in development
+    open: '/observepoint-manager/',
+  }
 })

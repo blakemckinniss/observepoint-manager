@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WebJourneyList } from './pages/WebJourneyList';
 import { WebJourneyDetail } from './pages/WebJourneyDetail';
@@ -86,7 +86,8 @@ function Navigation() {
 }
 
 function App() {
-  const basename = import.meta.env.PROD ? '/observepoint-manager' : '';
+  // Use the same basename for both local and production
+  const basename = '/observepoint-manager';
   
   return (
     <QueryClientProvider client={queryClient}>
@@ -119,6 +120,7 @@ function App() {
               <Route path="/journeys/:journeyId" element={<WebJourneyDetail />} />
               <Route path="/rules" element={<RuleList />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
         </div>

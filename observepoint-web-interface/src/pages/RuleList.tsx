@@ -289,7 +289,7 @@ export function RuleList() {
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                           <div className="flex items-center">
                             {getRuleIcon(rule.type)}
-                            <span className="ml-2">{rule.type.replace(/_/g, ' ')}</span>
+                            <span className="ml-2">{rule.type?.replace(/_/g, ' ') || 'Unknown'}</span>
                           </div>
                         </td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">
