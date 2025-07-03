@@ -1,12 +1,16 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useWebJourneys, useRunWebJourney } from '../hooks/useObservePoint';
+import { useWebJourneys, useRunWebJourney, useDeleteWebJourney } from '../hooks/useObservePoint';
 import { PlayCircle, Plus, Edit2, Trash2 } from 'lucide-react';
 import type { WebJourney } from '../types/observepoint';
 import { ApiKeyGuard } from '../components/ApiKeyGuard';
+import { CreateJourneyModal } from '../components/CreateJourneyModal';
 
 export function WebJourneyList() {
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const { data: journeys, isLoading, error } = useWebJourneys();
   const runJourney = useRunWebJourney();
+  const deleteJourney = useDeleteWebJourney();
 
   const handleRunJourney = async (journeyId: string) => {
     try {
@@ -18,13 +22,18 @@ export function WebJourneyList() {
   };
 
   const handleNewJourney = () => {
-    // For now, show an alert that this feature is not yet implemented
-    alert('Creating new journeys through the UI is not yet implemented. Please use the ObservePoint web interface to create new journeys.');
+    setShowCreateModal(true);
   };
 
-  const handleDeleteJourney = (journeyId: string, journeyName: string) => {
-    // For now, show an alert that this feature is not yet implemented
-    alert(`Deleting journeys through the UI is not yet implemented. Please use the ObservePoint web interface to delete journey "${journeyName}".`);
+  const handleDeleteJourney = async (journeyId: string, journeyName: string) => {
+    if (window.confirm(`Are you sure you want to delete the journey "${journeyName}"? This action cannot be undone.`)) {
+      try {
+        await deleteJourney.mutateAsync(journeyId);
+        alert('Journey deleted successfully!');
+      } catch (error) {
+        alert('Failed to delete journey: ' + error);
+      }
+    }
   };
 
 
@@ -54,11 +63,8 @@ export function WebJourneyList() {
     );
   }
 
-  // Filter to show only the specific journeys if provided
-  const targetJourneyIds = ['493257', '478548'];
-  const filteredJourneys = journeys?.filter(journey => 
-    targetJourneyIds.includes(journey.id)
-  ) || [];
+  // Show all journeys
+  const filteredJourneys = journeys || [];
 
   return (
     <ApiKeyGuard>
@@ -67,7 +73,7 @@ export function WebJourneyList() {
         <div className="sm:flex-auto">
           <h1 className="text-2xl font-semibold text-gray-900">Web Journeys</h1>
           <p className="mt-2 text-sm text-gray-700">
-            Manage and monitor your web journeys. Currently showing tracked journeys.
+            Manage and monitor your web journeys.
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
@@ -110,7 +116,7 @@ export function WebJourneyList() {
                   {filteredJourneys.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="px-3 py-4 text-sm text-gray-500 text-center">
-                        No tracked journeys found. Add journey IDs 493257 or 478548 to see them here.
+                        No journeys found. Click "New Journey" to create your first journey.
                       </td>
                     </tr>
                   ) : (
@@ -170,6 +176,11 @@ export function WebJourneyList() {
         </div>
       </div>
     </div>
+    
+    <CreateJourneyModal 
+      isOpen={showCreateModal} 
+      onClose={() => setShowCreateModal(false)} 
+    />
     </ApiKeyGuard>
   );
 }
