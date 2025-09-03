@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { X, Plus, Trash2, ChevronUp, ChevronDown, Save, AlertCircle } from 'lucide-react';
 import { observePointClient } from '../api/client';
-import type { WebValidation, ValidationTemplate, ValidationStep, TemplateVariable } from '../types/observepoint';
+import type { WebValidation, ValidationTemplate, ValidationStep } from '../types/observepoint';
 
 interface WebValidationFormProps {
   validation?: WebValidation | null;
@@ -16,7 +16,7 @@ export function WebValidationForm({ validation, template, onClose, onSuccess }: 
     name: '',
     description: '',
     url: '',
-    frequency: 'manual' as const,
+    frequency: 'manual' as 'manual' | 'daily' | 'weekly' | 'monthly',
     validations: [] as ValidationStep[],
   });
 
@@ -105,13 +105,13 @@ export function WebValidationForm({ validation, template, onClose, onSuccess }: 
         
         // Replace template variables in config values
         Object.keys(processedConfig).forEach(key => {
-          const value = processedConfig[key];
+          const value = (processedConfig as any)[key];
           if (typeof value === 'string' && value.includes('{{')) {
             let processed = value;
             Object.keys(templateVariables).forEach(varKey => {
               processed = processed.replace(new RegExp(`{{${varKey}}}`, 'g'), templateVariables[varKey]);
             });
-            processedConfig[key] = processed;
+            (processedConfig as any)[key] = processed;
           }
         });
         

@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Play, RefreshCw, CheckCircle, XCircle, AlertCircle, Clock, Calendar, Activity, Image } from 'lucide-react';
 import { observePointClient } from '../api/client';
-import type { WebValidation, ValidationRun, ValidationResult } from '../types/observepoint';
+import type { ValidationRun, ValidationResult } from '../types/observepoint';
 
 export function WebValidationDetail() {
   const { validationId } = useParams<{ validationId: string }>();
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); // Uncomment when needed
   const queryClient = useQueryClient();
   const [selectedRun, setSelectedRun] = useState<ValidationRun | null>(null);
 
-  const { data: validation, isLoading: isLoadingValidation } = useQuery({
+  const { data: validation } = useQuery({
     queryKey: ['webValidation', validationId],
     queryFn: () => observePointClient.getWebValidation(validationId!),
     enabled: !!validationId && observePointClient.hasApiKey(),
@@ -84,7 +84,7 @@ export function WebValidationDetail() {
     );
   }
 
-  if (isLoadingAudit) {
+  if (isLoadingRuns) {
     return <div className="flex justify-center py-12">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
     </div>;
@@ -300,9 +300,9 @@ export function WebValidationDetail() {
                   <p className="text-gray-500 text-center py-4">No validation results available.</p>
                 ) : (
                   <div className="space-y-4">
-                    {(selectedRun || latestRun)!.results.map((result: AuditResult, index: number) => (
+                    {(selectedRun || latestRun)!.results.map((result: ValidationResult, index: number) => (
                       <div
-                        key={`${result.validationId}-${index}`}
+                        key={`${result.validationStepId}-${index}`}
                         className={`border rounded-lg p-4 ${
                           result.status === 'passed' 
                             ? 'border-green-200 bg-green-50' 
@@ -316,7 +316,7 @@ export function WebValidationDetail() {
                             {getStatusIcon(result.status)}
                             <div className="ml-3 flex-1">
                               <h4 className="text-sm font-medium text-gray-900">
-                                {result.validationName}
+                                {result.validationStepName}
                               </h4>
                               {result.message && (
                                 <p className="mt-1 text-sm text-gray-600">
@@ -366,7 +366,7 @@ export function WebValidationDetail() {
         </div>
         <div className="px-4 py-5 sm:p-6">
           <div className="space-y-3">
-            {validation.validations.map((validation, index) => (
+            {validation.validations.map((validation) => (
               <div key={validation.id} className="border rounded-lg p-4">
                 <div className="flex items-center justify-between">
                   <div>

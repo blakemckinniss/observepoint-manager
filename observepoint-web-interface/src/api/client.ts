@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance, type AxiosError } from 'axios';
-import type { WebJourney, WebJourneyAction, WebJourneyRun, Rule, ApiError, WebValidation, ValidationRun, ValidationTemplate } from '../types/observepoint';
+import type { WebJourney, WebJourneyAction, WebJourneyRun, Rule, ApiError, WebValidation, ValidationRun, ValidationTemplate, ValidationStep, ValidationResult } from '../types/observepoint';
 
 class ObservePointClient {
   private client!: AxiosInstance;
@@ -242,7 +242,7 @@ class ObservePointClient {
       actions.push({
         label: 'Navigate to page',
         action: 'navto',
-        url: audit.url || 'https://www.example.com',
+        url: validation.url || 'https://www.example.com',
         sequence: 0
       });
     }
@@ -355,10 +355,11 @@ class ObservePointClient {
   }
 
   private journeyRunToValidationRun(run: WebJourneyRun): ValidationRun {
-    const results = (run.results || []).map((result, index) => ({
-      validationId: `val-${index}`,
-      validationName: `Validation ${index + 1}`,
+    const results: ValidationResult[] = (run.results || []).map((result, index) => ({
+      validationStepId: `val-${index}`,
+      validationStepName: `Validation ${index + 1}`,
       status: 'passed' as const,
+      message: 'Validation completed',
       timestamp: result.timestamp,
       screenshot: result.screenshots?.[0],
     }));
@@ -444,8 +445,8 @@ class ObservePointClient {
             var originalTl = window.s.tl;
             window.s.tl = function() {
               // Check if the expected event fired
-              if (window.s['${clickVariable}']) {
-                actualValue = window.s['${clickVariable}'];
+              if (window.s[clickVariable]) {
+                actualValue = window.s[clickVariable];
                 trackingFired = true;
               }
               // Call original function
