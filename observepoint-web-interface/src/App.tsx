@@ -4,7 +4,9 @@ import { WebJourneyList } from './pages/WebJourneyList';
 import { WebJourneyDetail } from './pages/WebJourneyDetail';
 import { RuleList } from './pages/RuleList';
 import { Settings as SettingsPage } from './pages/Settings';
-import { Home, Settings, FileText, PlayCircle } from 'lucide-react';
+import { WebValidationList } from './pages/WebValidationList';
+import { WebValidationDetail } from './pages/WebValidationDetail';
+import { Home, Settings, FileText, PlayCircle, Shield } from 'lucide-react';
 import { observePointClient } from './api/client';
 
 const queryClient = new QueryClient({
@@ -65,6 +67,17 @@ function Navigation() {
                 <FileText className="w-4 h-4 mr-2" />
                 Rules
               </Link>
+              <Link
+                to="/validations"
+                className={`${
+                  isActive('/validations') || location.pathname.startsWith('/validations/')
+                    ? 'border-indigo-500 text-gray-900' 
+                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                Web Validation
+              </Link>
             </div>
           </div>
           <div className="flex items-center">
@@ -119,6 +132,8 @@ function App() {
               <Route path="/journeys" element={<WebJourneyList />} />
               <Route path="/journeys/:journeyId" element={<WebJourneyDetail />} />
               <Route path="/rules" element={<RuleList />} />
+              <Route path="/validations" element={<WebValidationList />} />
+              <Route path="/validations/:validationId" element={<WebValidationDetail />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
